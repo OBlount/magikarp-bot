@@ -6,14 +6,14 @@ from dotenv import load_dotenv
 from cmds.Inventory import Inventory
 
 
-def createBot():
+def create_bot():
     bot = commands.Bot(command_prefix='!')
     bot.add_cog(Inventory(bot))
 
     return bot
 
 
-def runBot(bot):
+def run_bot(bot):
     load_dotenv()
     SESSION_TOKEN = os.getenv("SESSION_TOKEN")
 
@@ -29,7 +29,6 @@ def runBot(bot):
         exit()
 
 
-
 if __name__ == "__main__":
-    karpBot = createBot()
-    runBot(karpBot)
+    karpBot = create_bot()
+    run_bot(karpBot)
