@@ -1,5 +1,6 @@
 # Python Venv
 magikarp-env/
+magikarp-bot/
 
 # Environment Vars
 .env
