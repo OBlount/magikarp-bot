@@ -29,51 +29,14 @@ class DatabaseManager:
         self.connection.close()
 
 
-class DbRead(DatabaseManager):
+class DbAdminCommands(DatabaseManager):
 
     def __init__(self):
         super().__init__()
 
-    def debug(self):
-        sql = "SELECT * FROM trainers;"
-        self.cursor.execute(sql)
-        data = self.cursor.fetchall()
-        print(data)
-
-    def read(self, table, select_params, where_clause="1=1"):
-        params = ', '.join([param for param in select_params])
-        sql = f"SELECT {params} FROM {table} WHERE {where_clause}"
-        self.cursor.execute(sql)
-        data = self.cursor.fetchall()
-        return data
-
-    def inventory_read(self, trainer_id):
-        sql = '''SELECT items.itemName, inventory.quantity 
-        FROM items INNER JOIN inventory ON items.itemId = inventory.itemId 
-        WHERE inventory.trainerId =:trainerID'''
-
-        self.cursor.execute(sql, {"trainerID": trainer_id})
-        data = self.cursor.fetchall()
-        return data
-
-
-class DbWrite(DatabaseManager):
-
-    def __init__(self):
-        super().__init__()
-
-    def db_add_inventory(self, values):
-        params = tuple(values)
-        sql = "INSERT INTO inventory (itemId, trainerId, quantity) VALUES (?, ?, ?)"
-        try:
-            self.cursor.execute(sql, params)
-            self.connection.commit()
-            print("[SUCCESS] Written to inventory successfully")
-            return True
-        except sqlite3.OperationalError:
-            print("[ERROR] Failed to write to inventory")
-            return False
-
+    # Adds new item to the items table in the db.
+    # DOCUMENTATION:
+    # tuple params = (itemType, itemName, itemDesc, itemEffect)
     def db_add_new_item(self, params):
         params = tuple(params)
         try:
@@ -86,6 +49,11 @@ class DbWrite(DatabaseManager):
             print("[ERROR] Failed to write to items")
             return False
 
+    # Adds new trainer to the trainer table in the db.
+    # DOCUMENTATION:
+    # trainerId = Discord ID
+    # trainerName = Discord Name
+    # tuple values = (trainerId, trainerName)
     def db_add_trainer(self, values):
         params = tuple(values)
         sql = "INSERT INTO trainers (trainerId, trainerName) VALUES (?, ?)"
@@ -97,6 +65,8 @@ class DbWrite(DatabaseManager):
         except sqlite3.OperationalError:
             print("[ERROR] Failed to write to trainers")
             return False
+
+
 
 
 if __name__ == '__main__':
