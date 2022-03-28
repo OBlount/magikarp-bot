@@ -156,6 +156,13 @@ class DbOperations(DatabaseManager):
         data = self.cursor.fetchone()
         return int(data[0])
 
+    def get_item_name_from_id(self, item_id):
+        sql = "SELECT itemName FROM items WHERE itemId = ?"
+        self.cursor.execute(sql, (item_id,))
+        data = self.cursor.fetchone()
+        return data[0]
+
 
 if __name__ == '__main__':
-    pass
+    db = DbOperations()
+    print(db.get_item_name_from_id(2))
