@@ -1,16 +1,21 @@
 import os
-
 import discord.errors
+
 from discord.ext import commands
 from dotenv import load_dotenv
+
 from lib.cmds.Inventory import Inventory
+from lib.cmds.FeelingLucky import Feeling_Lucky
 
 
 def create_bot():
     bot = commands.Bot(command_prefix='!')
+
     bot.add_cog(Inventory(bot))
+    bot.add_cog(Feeling_Lucky(bot))
 
     return bot
+
 
 def run_bot(bot):
     load_dotenv()

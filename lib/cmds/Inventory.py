@@ -1,5 +1,6 @@
+from lib.cmds import OPERATOR
 from discord.ext import commands
-from lib.db.databasemgmt import DbOperations
+
 
 class Inventory(commands.Cog):
 
@@ -7,11 +8,10 @@ class Inventory(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.operator = DbOperations()
 
     @commands.command(name=CMD)
     async def list(self, ctx):
-        data = self.operator.inventory_read(ctx.author.id)
+        data = OPERATOR.inventory_read(ctx.author.id)
         message = f"<@{ctx.author.id}>'s inventory:\n"
 
         for item in data:
