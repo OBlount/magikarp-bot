@@ -84,9 +84,9 @@ class DbOperations(DatabaseManager):
             return err
 
     # Private method to return the item id of an item from the name of an item
-    def __get_item_from_name(self, item_name):
+    def get_item_from_name(self, item_name):
         item_name = item_name.lower()
-        sql = "SELECT trainerId FROM trainers WHERE LOWER(trainerName) =:itemName"
+        sql = "SELECT itemId FROM items WHERE LOWER(itemName) =:itemName"
 
         self.cursor.execute(sql, {"itemName": item_name})
         data = self.cursor.fetchall()
@@ -130,7 +130,7 @@ class DbOperations(DatabaseManager):
         if type(values[0]) != int:
             values[0] = self.__get_trainer_id_from_name(values[0])[0][0]
         if type(values[1]) != int:
-            values[1] = self.__get_item_from_name(values[1])[0][0]
+            values[1] = self.get_item_from_name(values[1])[0][0]
         if type(values[2]) != int:
             try:
                 values = list(values)
