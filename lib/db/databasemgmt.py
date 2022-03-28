@@ -5,8 +5,8 @@ import os
 class DatabaseManager:
 
     def __init__(self):
-        self.project_root = f"{os.curdir}/../"
-        self.name = f"{os.curdir}/../res/karp.db"
+        self.project_root = f"{os.curdir}/../../"
+        self.name = f"{self.project_root}/res/karp.db"
         self.create_db()
         self.connection = None
         self.cursor = None
