@@ -4,7 +4,7 @@ import discord.errors
 from discord.ext import commands
 from dotenv import load_dotenv
 from lib.cmds.Inventory import Inventory
-from lib.db import databasemgmt
+
 
 def create_bot():
     bot = commands.Bot(command_prefix='!')

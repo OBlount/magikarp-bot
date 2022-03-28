@@ -75,7 +75,7 @@ class DbOperations(DatabaseManager):
         params = [values[2], values[0], values[1]]
         sql = "UPDATE inventory SET quantity = ? WHERE trainerId = ? AND itemId = ?"
         try:
-            self.cursor.execute(sql,params)
+            self.cursor.execute(sql, params)
             self.connection.commit()
             print("[SUCCESS] Written to inventory successfully")
             return True
@@ -125,6 +125,7 @@ class DbOperations(DatabaseManager):
             print("[ERROR] Failed to write to inventory")
             return err
 
+    # tuple values = (trainerId, itemId, quantity)
     def edit_inventory(self, values):
         if type(values[0]) != int:
             values[0] = self.__get_trainer_id_from_name(values[0])[0][0]
@@ -149,11 +150,11 @@ class DbOperations(DatabaseManager):
             print(err)
             return err
 
-    def dump(self):
-        sql = "SELECT * FROM items"
+    def get_max_item(self):
+        sql = "SELECT MAX(itemId) FROM items"
         self.cursor.execute(sql)
-        data = self.cursor.fetchall()
-        print(data)
+        data = self.cursor.fetchone()
+        return int(data[0])
 
 
 if __name__ == '__main__':
