@@ -2,6 +2,9 @@
 magikarp-env/
 magikarp-bot/
 
+# Resources
+res/
+
 # Environment Vars
 .env
 
