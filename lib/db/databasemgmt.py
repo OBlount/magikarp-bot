@@ -171,7 +171,7 @@ class DbOperations(DatabaseManager):
             self.cursor.execute(sql, (values[0], values[1]))
             data = self.cursor.fetchall()
             if len(data) > 0:
-                self.change_item_quantity(values)
+                self.increment_item_quantity(values)
             else:
                 self.add_inventory(values)
         except sqlite3.OperationalError as err:
