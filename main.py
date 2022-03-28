@@ -3,7 +3,7 @@ import os
 import discord.errors
 from discord.ext import commands
 from dotenv import load_dotenv
-from cmds.Inventory import Inventory
+from lib.cmds.Inventory import Inventory
 
 
 def create_bot():
@@ -12,18 +12,17 @@ def create_bot():
 
     return bot
 
-
 def run_bot(bot):
     load_dotenv()
-    SESSION_TOKEN = os.getenv("SESSION_TOKEN")
+    BOT_TOKEN = os.getenv("BOT_TOKEN")
 
-    if SESSION_TOKEN is None:
-        print("[ERROR] Please provide your SESSION_TOKEN in a .env\n\rExiting...")
-        exit(1)
+    if BOT_TOKEN is None:
+        print("[ERROR] Please provide your BOT_TOKEN in a .env\n\rExiting...")
+        exit(10)
 
     try:
         print("Spinning up bot...")
-        bot.run(SESSION_TOKEN)
+        bot.run(BOT_TOKEN)
     except discord.errors.LoginFailure as err:
         print(err)
         exit()

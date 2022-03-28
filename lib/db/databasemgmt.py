@@ -156,5 +156,4 @@ class DbOperations(DatabaseManager):
 
 
 if __name__ == '__main__':
-    operator = DbOperations()
-    print(operator.inventory_read(296348570527989760))
+    pass
