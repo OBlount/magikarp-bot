@@ -61,12 +61,6 @@ class DbAdminCommands(DatabaseManager):
             print("[ERROR] Failed to write to trainers")
             return False
 
-
-class DbOperations(DatabaseManager):
-
-    def __init__(self):
-        super().__init__()
-
     # Method to change the number of items of a specified trainer
     # tuple values = (trainerId, itemId, quantity)
     # quantity should be the new quantity not the amount to add/remove
@@ -75,6 +69,40 @@ class DbOperations(DatabaseManager):
         params = [values[2], values[0], values[1]]
         sql = "UPDATE inventory SET quantity = ? WHERE trainerId = ? AND itemId = ?"
         try:
+            self.cursor.execute(sql, params)
+            self.connection.commit()
+            print("[SUCCESS] Written to inventory successfully")
+            return True
+        except sqlite3.OperationalError as err:
+            print("[ERROR] Failed to write to inventory")
+            return err
+
+
+class DbOperations(DatabaseManager):
+
+    def __init__(self):
+        super().__init__()
+
+    def increment_item_quantity(self, values):
+        params = (values[0], values[1], values[2], values[0], values[1])
+        try:
+            sql = '''UPDATE inventory 
+            SET quantity = (SELECT quantity FROM inventory WHERE trainerId = ? AND itemId = ?) + ? 
+            WHERE trainerId = ? AND itemId = ?'''
+            self.cursor.execute(sql, params)
+            self.connection.commit()
+            print("[SUCCESS] Written to inventory successfully")
+            return True
+        except sqlite3.OperationalError as err:
+            print("[ERROR] Failed to write to inventory")
+            return err
+
+    def decrement_item_quantity(self, values):
+        params = (values[0], values[1], values[2], values[0], values[1])
+        try:
+            sql = '''UPDATE inventory 
+            SET quantity = (SELECT quantity FROM inventory WHERE trainerId = ? AND itemId = ?) - ? 
+            WHERE trainerId = ? AND itemId = ?'''
             self.cursor.execute(sql, params)
             self.connection.commit()
             print("[SUCCESS] Written to inventory successfully")
@@ -143,7 +171,7 @@ class DbOperations(DatabaseManager):
             self.cursor.execute(sql, (values[0], values[1]))
             data = self.cursor.fetchall()
             if len(data) > 0:
-                self.update_inventory(values)
+                self.change_item_quantity(values)
             else:
                 self.add_inventory(values)
         except sqlite3.OperationalError as err:
@@ -164,5 +192,4 @@ class DbOperations(DatabaseManager):
 
 
 if __name__ == '__main__':
-    db = DbOperations()
-    print(db.get_item_name_from_id(2))
+    pass
