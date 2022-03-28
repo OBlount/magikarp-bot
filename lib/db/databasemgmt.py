@@ -5,16 +5,11 @@ import os
 class DatabaseManager:
 
     def __init__(self):
-        self.project_root = f"{os.curdir}/../../"
-        self.name = f"{self.project_root}/res/karp.db"
-        self.create_db()
+        self.project_root = os.path.abspath(f"{os.curdir}")
+        self.name = os.path.abspath(f"{self.project_root}/res/karp.db")
         self.connection = None
         self.cursor = None
         self.establish_connection()
-
-    def create_db(self):
-        if not os.path.isfile(self.name):
-            os.mkdir(f"{self.project_root}/res")
 
     def establish_connection(self):  # connects to db and creates cursor
         try:
@@ -153,6 +148,12 @@ class DbOperations(DatabaseManager):
         except sqlite3.OperationalError as err:
             print(err)
             return err
+
+    def dump(self):
+        sql = "SELECT * FROM items"
+        self.cursor.execute(sql)
+        data = self.cursor.fetchall()
+        print(data)
 
 
 if __name__ == '__main__':
