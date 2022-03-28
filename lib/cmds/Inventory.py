@@ -11,7 +11,7 @@ class Inventory(commands.Cog):
 
     @commands.command(name=CMD)
     async def list(self, ctx):
-        data = self.operator.inventory_read()
+        data = self.operator.inventory_read(ctx.author.id)
         message = f"<@{ctx.author.id}>'s inventory:\n"
 
         for item in data:
