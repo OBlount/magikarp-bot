@@ -12,6 +12,7 @@ def create_bot():
 
     return bot
 
+
 def run_bot(bot):
     load_dotenv()
     BOT_TOKEN = os.getenv("BOT_TOKEN")
