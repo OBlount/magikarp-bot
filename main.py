@@ -7,7 +7,10 @@ from dotenv import load_dotenv
 from lib.cmds.Inventory import Inventory
 from lib.cmds.FeelingLucky import Feeling_Lucky
 
-
+# A method that adds the cmd prefix and cmd cogs in one go.
+# DOCUMENTATION:
+# RETURNS:
+# bot dicord_bot
 def create_bot():
     bot = commands.Bot(command_prefix='!')
 
@@ -17,13 +20,17 @@ def create_bot():
     return bot
 
 
+# A method that first grabs the bot token from the .env file, and then
+# tries to spin using bot.run(TOKEN).
+# DOCUMENTATION:
+# bot bot
 def run_bot(bot):
     load_dotenv()
     BOT_TOKEN = os.getenv("BOT_TOKEN")
 
     if BOT_TOKEN is None:
         print("[ERROR] Please provide your BOT_TOKEN in a .env\n\rExiting...")
-        exit(10)
+        exit(10)  # 10 = No bot token provided
 
     try:
         print("Spinning up bot...")
