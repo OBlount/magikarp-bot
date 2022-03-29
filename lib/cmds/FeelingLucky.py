@@ -11,8 +11,12 @@ class Feeling_Lucky(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    # An async method which promise a message back to the user when the cmd is
+    # struck. It plays out different game events triggered by a random number.
+    # DOCUMENTATION:
+    # string name = CMD
     @commands.command(name=CMD)
-    async def fl(self, ctx):
+    async def feeling_lucky(self, ctx):
         rand = random.randint(1, 3)
 
         match rand:
@@ -27,6 +31,11 @@ class Feeling_Lucky(commands.Cog):
 
         await ctx.send(message)
 
+    # A private method to give a random quantity of a random item to a trainer.
+    # DOCUMENTATION:
+    # int trainer_id
+    # RETURNS:
+    # tuple status = (string item_name, random_quantity)
     def __give_item(self, trainer_id):
         number_of_items = OPERATOR.get_max_item()
         random_id = random.randint(1, number_of_items)
