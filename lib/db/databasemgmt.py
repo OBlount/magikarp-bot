@@ -31,7 +31,7 @@ class DbAdminCommands(DatabaseManager):
 
     # Adds new item to the items table in the db.
     # DOCUMENTATION:
-    # tuple params = (itemType, itemName, itemDesc, itemEffect)
+    # tuple params = (int itemType, string itemName, string itemDesc, int itemEffect)
     def db_add_new_item(self, params):
         params = tuple(params)
         try:
@@ -46,9 +46,7 @@ class DbAdminCommands(DatabaseManager):
 
     # Adds new trainer to the trainer table in the db.
     # DOCUMENTATION:
-    # trainerId = Discord ID
-    # trainerName = Discord Name
-    # tuple values = (trainerId, trainerName)
+    # tuple values = (int trainerId, string trainerName)
     def db_add_trainer(self, values):
         params = tuple(values)
         sql = "INSERT INTO trainers (trainerId, trainerName) VALUES (?, ?)"
@@ -61,10 +59,11 @@ class DbAdminCommands(DatabaseManager):
             print("[ERROR] Failed to write to trainers")
             return False
 
-    # Method to change the number of items of a specified trainer
+    # Method to change the number of items of a specified trainer.
+    # DOCUMENTATION:
     # tuple values = (trainerId, itemId, quantity)
-    # quantity should be the new quantity not the amount to add/remove
-    # e.g. current quantity is 25 and 5 items should be added quantity should = 30
+    # Note: Quantity should be the new quantity not the amount to add/remove.
+    # E.g. Current quantity is 25 and 5 items should be added, the new quantity should = 30.
     def update_inventory(self, values):
         params = [values[2], values[0], values[1]]
         sql = "UPDATE inventory SET quantity = ? WHERE trainerId = ? AND itemId = ?"
@@ -83,7 +82,10 @@ class DbOperations(DatabaseManager):
     def __init__(self):
         super().__init__()
 
-    def increment_item_quantity(self, values):
+    # A private method to increment a trainer's quantity of an item.
+    # DOCUMENTATION:
+    # tuple values = (int trainerId, int itemId, int quantity)
+    def __increment_item_quantity(self, values):
         params = (values[0], values[1], values[2], values[0], values[1])
         try:
             sql = '''UPDATE inventory 
@@ -97,7 +99,10 @@ class DbOperations(DatabaseManager):
             print("[ERROR] Failed to write to inventory")
             return err
 
-    def decrement_item_quantity(self, values):
+    # A private method to decrement a trainer's quantity of an item.
+    # DOCUMENTATION:
+    # tuple values = (int trainerId, int itemId, int quantity)
+    def __decrement_item_quantity(self, values):
         params = (values[0], values[1], values[2], values[0], values[1])
         try:
             sql = '''UPDATE inventory 
@@ -111,8 +116,12 @@ class DbOperations(DatabaseManager):
             print("[ERROR] Failed to write to inventory")
             return err
 
-    # Private method to return the item id of an item from the name of an item
-    def get_item_from_name(self, item_name):
+    # A private method to get the item id of an item from the name of an item.
+    # DOCUMENTATION:
+    # string item_name
+    # RETURNS:
+    # int item_id
+    def __get_item_from_name(self, item_name):
         item_name = item_name.lower()
         sql = "SELECT itemId FROM items WHERE LOWER(itemName) =:itemName"
 
@@ -120,7 +129,11 @@ class DbOperations(DatabaseManager):
         data = self.cursor.fetchall()
         return data
 
-    # Private method to return the trainer id from a trainer name
+    # A private method to get the trainer id from a trainer's name
+    # DOCUMENTATION:
+    # string trainer_name
+    # RETURNS:
+    # int trainer_id
     def __get_trainer_id_from_name(self, trainer_name):
         trainer_name = trainer_name.lower()
         sql = "SELECT trainerId FROM trainers WHERE LOWER(trainerName) =:trainerName"
@@ -129,7 +142,11 @@ class DbOperations(DatabaseManager):
         data = self.cursor.fetchall()
         return data
 
-    # Reads the inventory of a specified trainer by passing the id
+    # A method to read the inventory of a specified trainer by passing the id
+    # DOCUMENTATION:
+    # int trainer_id
+    # RETURNS:
+    # array [(item1_name, item1_quantity), (item2_id, item2_quantity), ... ]
     def inventory_read(self, trainer_id):
         sql = '''SELECT items.itemName, inventory.quantity 
         FROM items INNER JOIN inventory ON items.itemId = inventory.itemId 
@@ -139,9 +156,10 @@ class DbOperations(DatabaseManager):
         data = self.cursor.fetchall()
         return data
 
-    # Adds a new item to a trainers inventory
-    # tuple values = (trainerId, itemId, quantity)
-    def add_inventory(self, values):
+    # A private method that adds a new item to a trainer's inventory.
+    # DOCUMENTATION:
+    # tuple values = (int trainerId, int itemId, int quantity)
+    def __add_inventory(self, values):
         params = tuple(values)
         sql = "INSERT INTO inventory (trainerId, itemId, quantity) VALUES (?, ?, ?)"
         try:
@@ -153,7 +171,11 @@ class DbOperations(DatabaseManager):
             print("[ERROR] Failed to write to inventory")
             return err
 
-    # tuple values = (trainerId, itemId, quantity)
+    # An important method when editing a trainer's inventory. It will add_inventory() or increment_item_quantity()
+    # depending on if the item is already in the trainer's inventory.
+    # DOCUMENTATION:
+    # tuple values = (any trainerId, any itemId, any quantity)
+    # Note: The function is smart so that you can pass in string names.
     def edit_inventory(self, values):
         if type(values[0]) != int:
             values[0] = self.__get_trainer_id_from_name(values[0])[0][0]
@@ -178,12 +200,21 @@ class DbOperations(DatabaseManager):
             print(err)
             return err
 
+    # Method that gets the amount of items in the db.
+    # DOCUMENTATION:
+    # RETURNS:
+    # int number_of_items
     def get_max_item(self):
         sql = "SELECT MAX(itemId) FROM items"
         self.cursor.execute(sql)
         data = self.cursor.fetchone()
         return int(data[0])
 
+    # Method that gets the item's name in the db.
+    # DOCUMENTATION:
+    # int item_id
+    # RETURNS:
+    # string item_name
     def get_item_name_from_id(self, item_id):
         sql = "SELECT itemName FROM items WHERE itemId = ?"
         self.cursor.execute(sql, (item_id,))
