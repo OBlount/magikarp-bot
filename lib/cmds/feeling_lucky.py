@@ -23,8 +23,7 @@ class FeelingLucky(commands.Cog):
             # Item Event - Add an item to the player's inventory
             case 1:
                 item_name, quantity = self.__give_item(ctx.author.id)
-                message = f"<@{ctx.author.id}> got \
-                            {quantity} {item_name}(s)!\n"
+                message = f"<@{ctx.author.id}> got {quantity} {item_name}(s)!\n"
             case 2:
                 message = rand
             case 3:

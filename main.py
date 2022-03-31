@@ -15,8 +15,8 @@ from lib.cmds.feeling_lucky import FeelingLucky
 def create_bot():
     discord_bot = commands.Bot(command_prefix='!')
 
-    discord_bot.add_cog(Inventory(bot))
-    discord_bot.add_cog(FeelingLucky(bot))
+    discord_bot.add_cog(Inventory(discord_bot))
+    discord_bot.add_cog(FeelingLucky(discord_bot))
 
     return discord_bot
 
