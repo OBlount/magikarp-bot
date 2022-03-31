@@ -9,9 +9,9 @@ class Inventory(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    # An async method which promise a message back to the user when the cmd is
-    # struck. It lists out the item_name and item_quanity of each item a trainer
-    # owns from the db.
+    # An async method which promises a message back to the user when the cmd is
+    # struck. It lists out the item_name and item_quanity of each item a
+    # trainer owns stored in the db.
     # DOCUMENTATION:
     # string name = CMD
     @commands.command(name=CMD)
