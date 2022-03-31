@@ -1,3 +1,3 @@
-from lib.db.databasemgmt import DbOperations
+from lib.db.database_manager import DbOperations
 
 OPERATOR = DbOperations()

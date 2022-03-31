@@ -4,7 +4,7 @@ from lib.cmds import OPERATOR
 from discord.ext import commands
 
 
-class Feeling_Lucky(commands.Cog):
+class FeelingLucky(commands.Cog):
 
     CMD = "feelinglucky"
 

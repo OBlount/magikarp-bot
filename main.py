@@ -4,8 +4,8 @@ import discord.errors
 from discord.ext import commands
 from dotenv import load_dotenv
 
-from lib.cmds.Inventory import Inventory
-from lib.cmds.FeelingLucky import Feeling_Lucky
+from lib.cmds.inventory import Inventory
+from lib.cmds.feeling_lucky import FeelingLucky
 
 # A method that adds the cmd prefix and cmd cogs in one go.
 # DOCUMENTATION:
@@ -15,7 +15,7 @@ def create_bot():
     bot = commands.Bot(command_prefix='!')
 
     bot.add_cog(Inventory(bot))
-    bot.add_cog(Feeling_Lucky(bot))
+    bot.add_cog(FeelingLucky(bot))
 
     return bot
 
