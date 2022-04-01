@@ -31,11 +31,22 @@ class DbAdminCommands(DatabaseManager):
 
     # Adds new item to the items table in the db.
     # DOCUMENTATION:
-    # tuple params = (int itemType, string itemName, string itemDesc, int itemEffect)
+    # tuple params = (
+    #               int itemType,
+    #               string itemName,
+    #               string itemDesc,
+    #               int itemEffect)
     def db_add_new_item(self, params):
         params = tuple(params)
         try:
-            sql = "INSERT INTO items (itemType, itemName, itemDesc, itemEffect) VALUES (?, ?, ?, ?)"
+            sql = '''
+                    INSERT INTO items (
+                    itemType,
+                    itemName,
+                    itemDesc,
+                    itemEffect)
+                    VALUES (?, ?, ?, ?)
+            '''
             self.cursor.execute(sql, params)
             self.connection.commit()
             print("[SUCCESS] Written to items successfully")
@@ -63,10 +74,15 @@ class DbAdminCommands(DatabaseManager):
     # DOCUMENTATION:
     # tuple values = (trainerId, itemId, quantity)
     # Note: Quantity should be the new quantity not the amount to add/remove.
-    # E.g. Current quantity is 25 and 5 items should be added, the new quantity should = 30.
+    # E.g. Current quantity is 25 and 5 items should be added, the new
+    # quantity should = 30.
     def update_inventory(self, values):
         params = [values[2], values[0], values[1]]
-        sql = "UPDATE inventory SET quantity = ? WHERE trainerId = ? AND itemId = ?"
+        sql = '''
+                UPDATE inventory
+                SET quantity = ?
+                WHERE trainerId = ? AND itemId = ?
+        '''
         try:
             self.cursor.execute(sql, params)
             self.connection.commit()
@@ -88,9 +104,14 @@ class DbOperations(DatabaseManager):
     def __increment_item_quantity(self, values):
         params = (values[0], values[1], values[2], values[0], values[1])
         try:
-            sql = '''UPDATE inventory 
-            SET quantity = (SELECT quantity FROM inventory WHERE trainerId = ? AND itemId = ?) + ? 
-            WHERE trainerId = ? AND itemId = ?'''
+            sql = '''
+                    UPDATE inventory
+                    SET quantity = (SELECT quantity
+                                    FROM inventory
+                                    WHERE trainerId = ?
+                                    AND itemId = ?) + ?
+                    WHERE trainerId = ? AND itemId = ?
+            '''
             self.cursor.execute(sql, params)
             self.connection.commit()
             print("[SUCCESS] Written to inventory successfully")
@@ -105,8 +126,11 @@ class DbOperations(DatabaseManager):
     def __decrement_item_quantity(self, values):
         params = (values[0], values[1], values[2], values[0], values[1])
         try:
-            sql = '''UPDATE inventory 
-            SET quantity = (SELECT quantity FROM inventory WHERE trainerId = ? AND itemId = ?) - ? 
+            sql = '''UPDATE inventory
+            SET quantity = (SELECT quantity
+                            FROM inventory
+                            WHERE trainerId = ?
+                            AND itemId = ?) - ?
             WHERE trainerId = ? AND itemId = ?'''
             self.cursor.execute(sql, params)
             self.connection.commit()
@@ -136,7 +160,11 @@ class DbOperations(DatabaseManager):
     # int trainer_id
     def __get_trainer_id_from_name(self, trainer_name):
         trainer_name = trainer_name.lower()
-        sql = "SELECT trainerId FROM trainers WHERE LOWER(trainerName) =:trainerName"
+        sql = '''
+                SELECT trainerId
+                FROM trainers
+                WHERE LOWER(trainerName) =:trainerName
+        '''
 
         self.cursor.execute(sql, {"trainerName": trainer_name})
         data = self.cursor.fetchall()
@@ -148,9 +176,12 @@ class DbOperations(DatabaseManager):
     # RETURNS:
     # array [(item1_name, item1_quantity), (item2_id, item2_quantity), ... ]
     def inventory_read(self, trainer_id):
-        sql = '''SELECT items.itemName, inventory.quantity 
-        FROM items INNER JOIN inventory ON items.itemId = inventory.itemId 
-        WHERE inventory.trainerId =:trainerID'''
+        sql = '''
+                SELECT items.itemName, inventory.quantity
+                FROM items INNER JOIN inventory
+                ON items.itemId = inventory.itemId
+                WHERE inventory.trainerId =:trainerID
+        '''
 
         self.cursor.execute(sql, {"trainerID": trainer_id})
         data = self.cursor.fetchall()
@@ -161,7 +192,10 @@ class DbOperations(DatabaseManager):
     # tuple values = (int trainerId, int itemId, int quantity)
     def __add_inventory(self, values):
         params = tuple(values)
-        sql = "INSERT INTO inventory (trainerId, itemId, quantity) VALUES (?, ?, ?)"
+        sql = '''
+                INSERT INTO inventory (trainerId, itemId, quantity)
+                VALUES (?, ?, ?)
+        '''
         try:
             self.cursor.execute(sql, params)
             self.connection.commit()
@@ -171,7 +205,8 @@ class DbOperations(DatabaseManager):
             print("[ERROR] Failed to write to inventory")
             return err
 
-    # An important method when editing a trainer's inventory. It will add_inventory() or increment_item_quantity()
+    # An important method when editing a trainer's inventory. It will
+    # add_inventory() or increment_item_quantity()
     # depending on if the item is already in the trainer's inventory.
     # DOCUMENTATION:
     # tuple values = (any trainerId, any itemId, any quantity)
@@ -188,14 +223,18 @@ class DbOperations(DatabaseManager):
                 values = tuple(values)
             except ValueError as err:
                 return err
-        sql = "SELECT inventoryId FROM inventory WHERE trainerId = ? AND itemId = ?"
+        sql = '''
+                SELECT inventoryId
+                FROM inventory
+                WHERE trainerId = ? AND itemId = ?
+        '''
         try:
             self.cursor.execute(sql, (values[0], values[1]))
             data = self.cursor.fetchall()
             if len(data) > 0:
                 self.__increment_item_quantity(values)
             else:
-                self.add_inventory(values)
+                self.__add_inventory(values)
         except sqlite3.OperationalError as err:
             print(err)
             return err
@@ -208,7 +247,10 @@ class DbOperations(DatabaseManager):
         sql = "SELECT MAX(itemId) FROM items"
         self.cursor.execute(sql)
         data = self.cursor.fetchone()
-        return int(data[0])
+        if data[0] is None:
+            return 0
+        else:
+            return data[0]
 
     # Method that gets the item's name in the db.
     # DOCUMENTATION:
@@ -219,7 +261,10 @@ class DbOperations(DatabaseManager):
         sql = "SELECT itemName FROM items WHERE itemId = ?"
         self.cursor.execute(sql, (item_id,))
         data = self.cursor.fetchone()
-        return data[0]
+        if data[0] is None:
+            return ""
+        else:
+            return data[0]
 
 
 if __name__ == '__main__':

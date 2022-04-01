@@ -7,34 +7,35 @@ from dotenv import load_dotenv
 from lib.cmds.inventory import Inventory
 from lib.cmds.feeling_lucky import FeelingLucky
 
+
 # A method that adds the cmd prefix and cmd cogs in one go.
 # DOCUMENTATION:
 # RETURNS:
-# bot dicord_bot
+# bot discord_bot
 def create_bot():
-    bot = commands.Bot(command_prefix='!')
+    discord_bot = commands.Bot(command_prefix='!')
 
-    bot.add_cog(Inventory(bot))
-    bot.add_cog(FeelingLucky(bot))
+    discord_bot.add_cog(Inventory(discord_bot))
+    discord_bot.add_cog(FeelingLucky(discord_bot))
 
-    return bot
+    return discord_bot
 
 
 # A method that first grabs the bot token from the .env file, and then
 # tries to spin using bot.run(TOKEN).
 # DOCUMENTATION:
-# bot bot
-def run_bot(bot):
+# bot discord_bot
+def run_bot(discord_bot):
     load_dotenv()
     BOT_TOKEN = os.getenv("BOT_TOKEN")
 
     if BOT_TOKEN is None:
         print("[ERROR] Please provide your BOT_TOKEN in a .env\n\rExiting...")
-        exit(10)  # 10 = No bot token provided
+        exit(10)  # 10 = Bot token not provided
 
     try:
-        print("Spinning up bot...")
-        bot.run(BOT_TOKEN)
+        print("[BOT] Spinning up bot...")
+        discord_bot.run(BOT_TOKEN)
     except discord.errors.LoginFailure as err:
         print(err)
         exit()
