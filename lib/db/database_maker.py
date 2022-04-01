@@ -11,6 +11,7 @@ class CreateDatabase():
     # DOCUMENTATION:
     # RETURNS:
     # boolean exists
+    @staticmethod
     def __check_if_db_exists():
         return os.path.exists(CreateDatabase.__PATH)
 
@@ -18,6 +19,7 @@ class CreateDatabase():
     # A static method to create the database file. It will also
     # automatically create the tables needed for a fresh new game
     # (as well as add the starting items, itemTypes, ect...).
+    @staticmethod
     def create_database():
         if not CreateDatabase.__check_if_db_exists():
             print("[DB] Database cannot be found\n[DB] Creating new database")
@@ -89,6 +91,7 @@ class CreateTableSQL():
     # DOCUMENTATION:
     # RETURNS:
     # list(strings) statements
+    @staticmethod
     def __get_all_table_statements():
         statements = []
         for var in CreateTableSQL.__dict__:
@@ -102,6 +105,7 @@ class CreateTableSQL():
     # DOCUMENTATION:
     # cursor cursor
     # connection connection
+    @staticmethod
     def create_tables(cursor, connection):
         sql_statements = CreateTableSQL.__get_all_table_statements()
         for statement in sql_statements:
