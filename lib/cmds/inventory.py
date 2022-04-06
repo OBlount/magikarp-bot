@@ -1,4 +1,4 @@
-from lib.cmds import OPERATOR
+from lib.db.asyncdb import inventory_read
 from discord.ext import commands
 
 
@@ -16,11 +16,11 @@ class Inventory(commands.Cog):
     # string name = CMD
     @commands.command(name=CMD)
     async def list_inventory(self, ctx):
-        data = OPERATOR.inventory_read(ctx.author.id)
+        data = await inventory_read(ctx.author.id)
         message = f"<@{ctx.author.id}>'s inventory:\n"
 
         for item in data:
-            message = message + str(item[0]) + ": " + str(item[1]) + "\n"
+            message = message + f"{item[0]}: {item[1]}\n"
 
         await ctx.send(message)
 
