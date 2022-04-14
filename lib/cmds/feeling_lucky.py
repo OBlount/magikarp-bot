@@ -23,7 +23,7 @@ class FeelingLucky(commands.Cog):
         match rand:
             # Item Event - Add an item to the player's inventory
             case 1:
-                item_name, quantity = await self.__give_item(ctx.author.id)
+                item_name, quantity = await FeelingLucky.__give_item(ctx.author.id)
                 message = f"<@{ctx.author.id}> got {quantity} {item_name}(s)!\n"
             case 2:
                 message = rand
@@ -32,7 +32,7 @@ class FeelingLucky(commands.Cog):
 
         await ctx.send(message)
 
-    # A private method to give a random quantity of a random item to a trainer.
+    # A private static method to give a random quantity of a random item to a trainer.
     # DOCUMENTATION:
     # int trainer_id
     # RETURNS:
