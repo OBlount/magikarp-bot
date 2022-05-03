@@ -1,6 +1,6 @@
 import random
 
-from lib.cmds import OPERATOR
+from lib.db.asyncdb import get_item_name_from_id, get_max_item, edit_inventory
 from discord.ext import commands
 
 
@@ -18,11 +18,12 @@ class FeelingLucky(commands.Cog):
     @commands.command(name=CMD)
     async def feeling_lucky(self, ctx):
         rand = random.randint(1, 3)
+        message = None
 
         match rand:
             # Item Event - Add an item to the player's inventory
             case 1:
-                item_name, quantity = self.__give_item(ctx.author.id)
+                item_name, quantity = await FeelingLucky.__give_item(ctx.author.id)
                 message = f"<@{ctx.author.id}> got {quantity} {item_name}(s)!\n"
             case 2:
                 message = rand
@@ -31,20 +32,21 @@ class FeelingLucky(commands.Cog):
 
         await ctx.send(message)
 
-    # A private method to give a random quantity of a random item to a trainer.
+    # A private static method to give a random quantity of a random item to a trainer.
     # DOCUMENTATION:
     # int trainer_id
     # RETURNS:
     # tuple status = (string item_name, int random_quantity)
-    def __give_item(self, trainer_id):
-        number_of_items = OPERATOR.get_max_item()
+    @staticmethod
+    async def __give_item(trainer_id):
+        number_of_items = await get_max_item()
         random_id = random.randint(1, number_of_items)
         random_quantity = random.randint(1, 3)
 
         val = (trainer_id, random_id, random_quantity)
-        OPERATOR.edit_inventory(val)
+        await edit_inventory(val)
 
-        return (OPERATOR.get_item_name_from_id(random_id), random_quantity)
+        return await get_item_name_from_id(random_id), random_quantity
 
 
 if __name__ == "__main__":

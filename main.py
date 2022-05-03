@@ -39,6 +39,8 @@ def run_bot(discord_bot):
     except discord.errors.LoginFailure as err:
         print(err)
         exit()
+    except KeyboardInterrupt:
+        print("Exiting bot...")
 
 
 if __name__ == "__main__":
