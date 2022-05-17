@@ -1,6 +1,8 @@
 import os.path
 import sqlite3
 
+from lib.db.pokemon_grabber import *
+
 
 class CreateDatabase():
 
@@ -19,6 +21,8 @@ class CreateDatabase():
     # A static method to create the database file. It will also
     # automatically create the tables needed for a fresh new game
     # (as well as add the starting items, itemTypes, ect...).
+    # If the database file exists, then is will validate the
+    # tables.
     @staticmethod
     def create_database():
         if not CreateDatabase.__check_if_db_exists():
@@ -33,9 +37,105 @@ class CreateDatabase():
                 print("[DB] Done")
             except sqlite3.DatabaseError:
                 print("[ERROR] Trouble creating the database")
+                CreateDatabase.__clean_database()
                 exit()
         else:
-            pass
+            try:
+                connection = sqlite3.connect(CreateDatabase.__PATH)
+                cursor = connection.cursor()
+
+                if not CreateDatabase.valid_species_table(cursor, connection):
+                    print("[ERROR] Trouble validating the database")
+                    CreateDatabase.__clean_database()
+                    exit()
+
+                connection.close()
+                print("[DB] Done")
+            except sqlite3.DatabaseError:
+                print("[ERROR] Trouble validating the database")
+                exit()
+
+    # A private static method that removes the enire database.
+    # This includes the file.db and the dir/.
+    def __clean_database():
+        if CreateDatabase.__check_if_db_exists():
+            print("[DB] Removing " + CreateDatabase.__PATH + "/")
+            os.remove(CreateDatabase.__PATH)
+            os.rmdir(CreateDatabase.__DIR)
+
+    # A static method that checks and returns True if
+    # the species table exists. Note that if the table
+    # exists but it's invalid, then the table is dumped.
+    # DOCUMENTATION:
+    # cursor cursor
+    # connection connection
+    # RETURNS:
+    # boolean is_valid
+    @staticmethod
+    def valid_species_table(cursor, connection):
+        sql_exists = "SELECT name FROM sqlite_master WHERE type='table' AND name='pokemonspecies'"
+        sql_valid = "SELECT * FROM pokemonspecies"
+        sql_remove = "DELETE FROM pokemonspecies"
+        cursor.execute(sql_exists)
+        connection.commit()
+        data = cursor.fetchall()
+
+        if len(data) <= 0:
+            return False
+
+        cursor.execute(sql_valid)
+        connection.commit()
+        data = cursor.fetchall()
+
+        if len(data) != 151:
+            cursor.execute(sql_remove)
+            connection.commit()
+            return False
+
+        return True
+
+
+    # A static method that constructs a string,
+    # consisting off all pokemon, that fits inside the
+    # VALUES part of the SQL statement.
+    # DOCUMENTATION:
+    # RETURNS:
+    # string values
+    @staticmethod
+    def populate_pokemon_species():
+        values = ""
+        number_of_pokemon = get_pokemon_species_count()
+
+        if not number_of_pokemon:
+            return ""
+
+        for pokemon_id in range(number_of_pokemon):
+            pokemon_attributes = get_a_pokemons_attributes(pokemon_id + 1)
+
+            if not pokemon_attributes:
+                return ""
+
+            pokedex = pokemon_attributes["pokedex_ID"]
+            name = pokemon_attributes["name"]
+            evolves_from = pokemon_attributes["evolves_from"]
+
+            record = "(" + str(pokedex) + ", "  + f'"{name}"' + ", "
+
+            if evolves_from == None:
+                record = record + "NULL"
+            else:
+                evolution_species_ID = get_pokedexID_from_name(evolves_from["name"])
+                record = record + str(evolution_species_ID)
+
+            if not pokemon_id + 1 == number_of_pokemon:
+                record = record + "),\n\r"
+            else:
+                record = record + ")"
+
+            values = values + record
+
+        return values
+
 
 class CreateTableSQL():
 
@@ -86,6 +186,14 @@ class CreateTableSQL():
         FOREIGN KEY("itemId") REFERENCES "items"("itemId") ON DELETE CASCADE
     )'''
 
+    __tbl_pokemon_species = '''
+        CREATE TABLE "pokemonspecies" (
+        "pokedexNumber" INTEGER NOT NULL,
+        "name"          TEXT NOT NULL,
+        "evolvesFromID" INTEGER,
+        PRIMARY KEY("pokedexNumber")
+    )'''
+
     # A private static method to get all the sql
     # statements (above), returned as a list(strings).
     # DOCUMENTATION:
@@ -111,6 +219,14 @@ class CreateTableSQL():
         for statement in sql_statements:
             cursor.execute(statement)
             connection.commit()
+
+        # Special case for dynamic SQL statement - add species.
+        add_species_statement = f'''
+        {"INSERT INTO pokemonspecies (pokedexNumber, name, evolvesFromID) VALUES " if not CreateDatabase.valid_species_table(cursor, connection) else ""}
+            {CreateDatabase.populate_pokemon_species() if not CreateDatabase.valid_species_table(cursor, connection) else ""}
+        '''
+        cursor.execute(add_species_statement)
+        connection.commit()
 
 
 if __name__ == '__main__':
