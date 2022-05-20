@@ -1,9 +1,6 @@
 import os.path
 
-from lib.db.database_maker import CreateDatabase
 
-
-ROOT = os.path.abspath(f"{os.curdir}")
-DB_PATH = os.path.abspath(f"{ROOT}/res/karp.db")
-
-CreateDatabase.create_database()
+__ROOT = os.path.abspath(f"{os.curdir}")
+__DB_PATH = os.path.abspath(f"{__ROOT}/res/karp.db")
+__DIR = "res"

@@ -4,6 +4,7 @@ import discord.errors
 from discord.ext import commands
 from dotenv import load_dotenv
 
+from lib.db.database_maker import create_database
 from lib.cmds.inventory import Inventory
 from lib.cmds.feeling_lucky import FeelingLucky
 
@@ -21,11 +22,13 @@ def create_bot():
     return discord_bot
 
 
-# A method that first grabs the bot token from the .env file, and then
-# tries to spin using bot.run(TOKEN).
+# A method that first creates the database, then grabs the
+# bot token from the .env file, and then tries to
+# spin using bot.run(TOKEN).
 # DOCUMENTATION:
 # bot discord_bot
 def run_bot(discord_bot):
+    create_database()
     load_dotenv()
     BOT_TOKEN = os.getenv("BOT_TOKEN")
 

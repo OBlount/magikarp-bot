@@ -1,6 +1,6 @@
 import aiosqlite
 
-from lib.db import DB_PATH
+from lib.db import __DB_PATH
 
 
 async def increment_item_quantity(values):
@@ -10,7 +10,7 @@ async def increment_item_quantity(values):
     params = (values[0], values[1], values[2], values[0], values[1])
 
     try:
-        db = await aiosqlite.connect(DB_PATH)
+        db = await aiosqlite.connect(__DB_PATH)
         cursor = await db.cursor()
 
         await cursor.execute(sql, params)
@@ -30,7 +30,7 @@ async def inventory_read(trainer_id):
     WHERE inventory.trainerId = ?'''
 
     try:
-        db = await aiosqlite.connect(DB_PATH)
+        db = await aiosqlite.connect(__DB_PATH)
         cursor = await db.cursor()
 
         await cursor.execute(sql, (trainer_id,))
@@ -48,7 +48,7 @@ async def get_item_name_from_id(item_id):
     sql = "SELECT itemName FROM items WHERE itemId = ?"
 
     try:
-        db = await aiosqlite.connect(DB_PATH)
+        db = await aiosqlite.connect(__DB_PATH)
         cursor = await db.cursor()
 
         await cursor.execute(sql, (item_id,))
@@ -69,7 +69,7 @@ async def get_max_item():
     sql = "SELECT MAX(itemId) FROM items"
 
     try:
-        db = await aiosqlite.connect(DB_PATH)
+        db = await aiosqlite.connect(__DB_PATH)
         cursor = await db.cursor()
 
         await cursor.execute(sql)
@@ -90,7 +90,7 @@ async def add_inventory(values):
     sql = "INSERT INTO inventory (trainerId, itemId, quantity) VALUES (?, ?, ?)"
 
     try:
-        db = await aiosqlite.connect(DB_PATH)
+        db = await aiosqlite.connect(__DB_PATH)
         cursor = await db.cursor()
 
         await cursor.execute(sql, values)
@@ -115,7 +115,7 @@ async def edit_inventory(values):
             return err
 
     try:
-        db = await aiosqlite.connect(DB_PATH)
+        db = await aiosqlite.connect(__DB_PATH)
         cursor = await db.cursor()
 
         await cursor.execute(sql, (values[0], values[1]))
