@@ -44,7 +44,7 @@ class CreateDatabase():
                 connection = sqlite3.connect(CreateDatabase.__PATH)
                 cursor = connection.cursor()
 
-                if not CreateDatabase.valid_species_table(cursor, connection):
+                if not CreateDatabase.is_species_table_valid(cursor, connection):
                     print("[ERROR] Trouble validating the database")
                     CreateDatabase.__clean_database()
                     exit()
@@ -72,7 +72,7 @@ class CreateDatabase():
     # RETURNS:
     # boolean is_valid
     @staticmethod
-    def valid_species_table(cursor, connection):
+    def is_species_table_valid(cursor, connection):
         sql_exists = "SELECT name FROM sqlite_master WHERE type='table' AND name='pokemonspecies'"
         sql_valid = "SELECT * FROM pokemonspecies"
         sql_remove = "DELETE FROM pokemonspecies"
@@ -97,16 +97,20 @@ class CreateDatabase():
 
     # A static method that constructs a string,
     # consisting off all pokemon, that fits inside the
-    # VALUES part of the SQL statement.
+    # VALUES part of the SQL statement. E.g. the string
+    # will look like: (0, "pokemon", ...), (...), (...).
+    # This is needed to create/format the sql statement which
+    # populates the pokemonspecies table.
     # DOCUMENTATION:
     # RETURNS:
     # string values
     @staticmethod
-    def populate_pokemon_species():
+    def format_sql_values_for_species():
         values = ""
         number_of_pokemon = get_pokemon_species_count()
 
-        if not number_of_pokemon:
+        # If we return an empty "", we break the sql statement
+        if not number_of_pokemon or number_of_pokemon != 151:
             return ""
 
         for pokemon_id in range(number_of_pokemon):
@@ -115,23 +119,28 @@ class CreateDatabase():
             if not pokemon_attributes:
                 return ""
 
+            # Deconstruct the dictionary
             pokedex = pokemon_attributes["pokedex_ID"]
             name = pokemon_attributes["name"]
             evolves_from = pokemon_attributes["evolves_from"]
 
+            # Each iteration of the for loop, we begin our 'record' as follows
             record = "(" + str(pokedex) + ", "  + f'"{name}"' + ", "
 
+            # Here we need some logic to check if we need to put NULL or not in this specific field
             if evolves_from == None:
                 record = record + "NULL"
             else:
                 evolution_species_ID = get_pokedexID_from_name(evolves_from["name"])
                 record = record + str(evolution_species_ID)
 
+            # When we have reached the pokemonID 150 (+1), structure the string without the ',\n\r'
             if not pokemon_id + 1 == number_of_pokemon:
                 record = record + "),\n\r"
             else:
                 record = record + ")"
 
+            # We add this completed 'record' to the values string
             values = values + record
 
         return values
@@ -222,8 +231,8 @@ class CreateTableSQL():
 
         # Special case for dynamic SQL statement - add species.
         add_species_statement = f'''
-        {"INSERT INTO pokemonspecies (pokedexNumber, name, evolvesFromID) VALUES " if not CreateDatabase.valid_species_table(cursor, connection) else ""}
-            {CreateDatabase.populate_pokemon_species() if not CreateDatabase.valid_species_table(cursor, connection) else ""}
+        {"INSERT INTO pokemonspecies (pokedexNumber, name, evolvesFromID) VALUES " if not CreateDatabase.is_species_table_valid(cursor, connection) else ""}
+            {CreateDatabase.format_sql_values_for_species() if not CreateDatabase.is_species_table_valid(cursor, connection) else ""}
         '''
         cursor.execute(add_species_statement)
         connection.commit()
