@@ -130,5 +130,39 @@ async def edit_inventory(values):
         return err
 
 
+async def register_trainer(values):
+    sql = "INSERT INTO trainers (trainerId, trainerName) VALUES (?, ?)"
+
+    try:
+        db = await aiosqlite.connect(DB_PATH)
+        cursor = await db.cursor()
+
+        await cursor.execute(sql, values)
+        await db.commit()
+        await cursor.close()
+        await db.close()
+        return True
+
+    except aiosqlite.OperationalError as err:
+        print(f"[ERROR] Failed to write to trainers\n{err}")
+        return False
+
+# Admin commands
+async def get_all_trainers():
+    sql = "SELECT trainerID, trainerName from trainers"
+    try:
+        db = await aiosqlite.connect(DB_PATH)
+        cursor = await db.cursor()
+
+        await cursor.execute(sql)
+        data = await cursor.fetchall()
+        await cursor.close()
+        await db.close()
+        return data
+
+    except aiosqlite.OperationalError as err:
+        print(err)
+        return err
+
 if __name__ == "__main__":
     pass

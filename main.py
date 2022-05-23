@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 
 from lib.cmds.inventory import Inventory
 from lib.cmds.feeling_lucky import FeelingLucky
+from lib.cmds.admin import Administrative
 from lib.db.database_maker import CreateDatabase
 
 # A method that adds the cmd prefix and cmd cogs in one go.
@@ -17,6 +18,7 @@ def create_bot():
 
     discord_bot.add_cog(Inventory(discord_bot))
     discord_bot.add_cog(FeelingLucky(discord_bot))
+    discord_bot.add_cog(Administrative(discord_bot))
 
     return discord_bot
 
