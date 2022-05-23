@@ -41,8 +41,8 @@ class FeelingLucky(commands.Cog):
     async def __give_item(trainer_id):
         number_of_items = await get_max_item()
         random_id = random.randint(1, number_of_items)
-        random_quantity = random.randint(1, 3)
-
+        random_quantity = random.choices([1, 2, 3], [5, 3, 1])
+        random_quantity = random_quantity[0]
         val = (trainer_id, random_id, random_quantity)
         await edit_inventory(val)
 
