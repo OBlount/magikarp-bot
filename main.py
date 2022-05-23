@@ -30,7 +30,11 @@ def run_bot(discord_bot):
     BOT_TOKEN = os.getenv("BOT_TOKEN")
 
     if BOT_TOKEN is None:
-        print("[ERROR] Please provide your BOT_TOKEN in a .env\n\rExiting...")
+        print("[ERROR] Please provide your BOT_TOKEN in a .env\n\r")
+        if not os.path.isfile(".env"):
+            with open(".env", "w") as env:
+                env.write("BOT_TOKEN=BOT_TOKEN_HERE")
+
         exit(10)  # 10 = Bot token not provided
 
     try:
