@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 from lib.cmds.inventory import Inventory
 from lib.cmds.feeling_lucky import FeelingLucky
-
+from lib.db.database_maker import CreateDatabase
 
 # A method that adds the cmd prefix and cmd cogs in one go.
 # DOCUMENTATION:
@@ -35,18 +35,22 @@ def run_bot(discord_bot):
             with open(".env", "w") as env:
                 env.write("BOT_TOKEN=BOT_TOKEN_HERE")
 
-        exit(10)  # 10 = Bot token not provided
+        exit(10)  # 10 = Bot token not valid
 
     try:
         print("[BOT] Spinning up bot...")
         discord_bot.run(BOT_TOKEN)
     except discord.errors.LoginFailure as err:
-        print(err)
-        exit()
+        print(f"[ERROR] {err}")
+        exit(10)
     except KeyboardInterrupt:
         print("Exiting bot...")
 
 
 if __name__ == "__main__":
+    if os.path.abspath(f"{os.curdir}") != os.path.abspath(__file__)[0:-8:1]:
+        print("[ERROR] Please start the bot from the same directory as the main.py file.")
+        exit()
+    CreateDatabase.create_database()
     karpBot = create_bot()
     run_bot(karpBot)
