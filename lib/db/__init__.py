@@ -1,10 +1,6 @@
 import os.path
 
 
-
-
-ROOT = os.path.abspath(f"{os.curdir}")
-DB_PATH = os.path.abspath(f"{ROOT}/res/karp.db")
-
-
-
+__ROOT = os.path.abspath(f"{os.curdir}")
+__DB_PATH = os.path.abspath(f"{__ROOT}/res/karp.db")
+__DIR = "res"

@@ -4,10 +4,10 @@ import discord.errors
 from discord.ext import commands
 from dotenv import load_dotenv
 
+from lib.db.database_maker import create_database
 from lib.cmds.inventory import Inventory
 from lib.cmds.feeling_lucky import FeelingLucky
 from lib.cmds.admin import Administrative
-from lib.db.database_maker import CreateDatabase
 
 # A method that adds the cmd prefix and cmd cogs in one go.
 # DOCUMENTATION:
@@ -23,11 +23,13 @@ def create_bot():
     return discord_bot
 
 
-# A method that first grabs the bot token from the .env file, and then
-# tries to spin using bot.run(TOKEN).
+# A method that first creates the database, then grabs the
+# bot token from the .env file, and then tries to
+# spin using bot.run(TOKEN).
 # DOCUMENTATION:
 # bot discord_bot
 def run_bot(discord_bot):
+    create_database()
     load_dotenv()
     BOT_TOKEN = os.getenv("BOT_TOKEN")
 
@@ -53,6 +55,5 @@ if __name__ == "__main__":
     if os.path.abspath(f"{os.curdir}") != os.path.abspath(__file__)[0:-8:1]:
         print("[ERROR] Please start the bot from the same directory as the main.py file.")
         exit()
-    CreateDatabase.create_database()
     karpBot = create_bot()
     run_bot(karpBot)
