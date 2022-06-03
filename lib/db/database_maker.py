@@ -23,7 +23,7 @@ def create_database():
             print("[DB] Done")
         except sqlite3.DatabaseError:
             print("[ERROR] Trouble creating the database")
-            __clean_database()
+            __clean_database(cursor, connection)
             exit()
     else:
         try:
@@ -31,8 +31,10 @@ def create_database():
             cursor = connection.cursor()
 
             if not is_species_table_valid(cursor, connection):
-                print("[ERROR] Trouble validating the database")
-                __clean_database()
+                print("[ERROR] Trouble validating the table 'pokemonspecies'")
+                __clean_database(cursor, connection, ["pokemonspecies"])
+                CreateTableSQL.insert_pokemon_species(cursor, connection)
+                print("[DB] Exiting. Please restart the bot...")
                 exit()
 
             connection.close()
@@ -88,6 +90,7 @@ def format_sql_values_for_species():
     if not number_of_pokemon or number_of_pokemon != 151:
         return ""
 
+    print("[API] Grabbing pokemon...")
     for pokemon_id in range(number_of_pokemon):
         pokemon_attributes = get_a_pokemons_attributes(pokemon_id + 1)
 
@@ -127,13 +130,26 @@ def __check_if_db_exists():
     return os.path.exists(__DB_PATH)
 
 
-# A private method that removes the enire database.
-# This includes the file.db and the dir/.
-def __clean_database():
-    if __check_if_db_exists():
+# A private method that removes tables. It can also
+# remove the enire (this includes the file.db and the dir/).
+# DOCUMENTATION:
+# list(strings) tables
+def __clean_database(cursor, connection, tables=None):
+    if not __check_if_db_exists():
+        return
+
+    if tables == None:
         print("[DB] Removing " + __DB_PATH + "/")
         os.remove(__DB_PATH)
         os.rmdir(__DIR)
+    elif len(tables) <= 0:
+        return
+    else:
+        for table in tables:
+            sql = "DELETE FROM " + table
+            print(f"[DB] Cleaning table '{table}'")
+            cursor.execute(sql)
+            connection.commit()
 
 
 class CreateTableSQL():
@@ -193,6 +209,21 @@ class CreateTableSQL():
         PRIMARY KEY("pokedexNumber")
     )'''
 
+    # A static method that grabs the pokemon species from
+    # the API, and then inserts them into the table. This is used
+    # When creating the database, and when the table isn't valid.
+    # DOCUMENTATION:
+    # cursor cursor
+    # connection connection
+    @staticmethod
+    def insert_pokemon_species(cursor, connection):
+        add_species_statement = f'''
+        {"INSERT INTO pokemonspecies (pokedexNumber, name, evolvesFromID) VALUES " if not is_species_table_valid(cursor, connection) else ""}
+            {format_sql_values_for_species() if not is_species_table_valid(cursor, connection) else ""}
+        '''
+        cursor.execute(add_species_statement)
+        connection.commit()
+
     # A static method that commits all the sql passed into
     # the function (to create the tables).
     # DOCUMENTATION:
@@ -205,12 +236,7 @@ class CreateTableSQL():
             cursor.execute(statement)
             connection.commit()
         # Special case for dynamic SQL statement - add species.
-        add_species_statement = f'''
-        {"INSERT INTO pokemonspecies (pokedexNumber, name, evolvesFromID) VALUES " if not is_species_table_valid(cursor, connection) else ""}
-            {format_sql_values_for_species() if not is_species_table_valid(cursor, connection) else ""}
-        '''
-        cursor.execute(add_species_statement)
-        connection.commit()
+        CreateTableSQL.insert_pokemon_species(cursor, connection)
 
     # A private static method to get all the sql
     # statements (above), returned as a list(strings).
