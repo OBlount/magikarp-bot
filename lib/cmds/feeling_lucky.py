@@ -1,7 +1,8 @@
 import random
 
-from lib.db.asyncdb import get_item_name_from_id, get_max_item, edit_inventory
 from discord.ext import commands
+
+from lib.db.asyncdb import get_item_name_from_id, get_max_item, edit_inventory
 
 
 class FeelingLucky(commands.Cog):
@@ -18,7 +19,7 @@ class FeelingLucky(commands.Cog):
     @commands.command(name=CMD)
     async def feeling_lucky(self, ctx):
         rand = random.randint(1, 3)
-        message = None
+        message = ""
 
         match rand:
             # Item Event - Add an item to the player's inventory
